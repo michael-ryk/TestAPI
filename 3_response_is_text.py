@@ -1,5 +1,5 @@
-import pytest
 from json.decoder import JSONDecodeError
+
 import requests
 
 # Receive response as text
