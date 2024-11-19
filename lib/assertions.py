@@ -5,6 +5,7 @@ from requests import Response
 class Assertions:
     @staticmethod
     def assert_json_value_by_name(response: Response, name, expected_value, error_message):
+        # Helper function which already assert values from json response
         try:
             response_as_dict = response.json()
         except json.JSONDecodeError:

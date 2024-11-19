@@ -1,6 +1,7 @@
 import pytest
 import requests
 from lib.base_case import BaseCase
+from lib.assertions import Assertions
 
 
 class TestUserAuth(BaseCase):
@@ -10,6 +11,7 @@ class TestUserAuth(BaseCase):
     ]
 
     def setup_method(self):
+        # Before running any tests, we want see first we have auth_sid, token and user Id
         data = {
             'email': 'vinkotov@example.com',
             'password': '1234'
@@ -23,19 +25,18 @@ class TestUserAuth(BaseCase):
 
 
     def test_auth_user(self):
+        # Positive test to check correct response
         response2 = requests.get("https://playground.learnqa.ru/api/user/auth",
                                  headers={"x-csrf-token": self.token},
                                  cookies={"auth_sid": self.auth_sid})
 
-        # Verify response
-        assert "user_id" in response2.json(), "There is no user id in the second response"
-        user_id_check = response2.json()["user_id"]
-
-        assert self.user_id_auth == user_id_check, "User id from auth method not equal to user id from check method"
-
+        # Verify using static method from my Assertions package
+        Assertions.assert_json_value_by_name(response2, "user_id", self.user_id_auth,
+        "User id from auth method not equal to user id from check method")
 
     @pytest.mark.parametrize('condition', exclude_params)
     def test_negative_auth_check(self, condition):
+        # 2 negative tests
         if condition == "no_cookie":
             response2 = requests.get("https://playground.learnqa.ru/api/user/auth",
                                      headers={"x-csrf-token": self.token})
@@ -46,7 +47,8 @@ class TestUserAuth(BaseCase):
             print("unknown case")
             response2 = "Null"
 
-        assert "user_id" in response2.json(), "There is no user id in the second response"
-        user_id_check_method = response2.json()["user_id"]
-        assert user_id_check_method == 0, f"User is authorized with condition {condition}"
+        # Verify using static method from my Assertions package
+        Assertions.assert_json_value_by_name(response2, "user_id", 0,
+        f"User is authorized with condition {condition}")
+
 
